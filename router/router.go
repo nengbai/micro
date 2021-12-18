@@ -21,7 +21,7 @@ func Router() *gin.Engine {
 	// 加载静态页面
 	// router.Static("/static", "./static")
 	// router.LoadHTMLGlob("templates/*")
-	router.LoadHTMLFiles("static/login.html", "static/index.html", "static/registry.html")
+	router.LoadHTMLFiles("static/login.html", "static/index.html", "static/registry.html", "static/test.html")
 
 	router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", nil)
@@ -37,13 +37,14 @@ func Router() *gin.Engine {
 	}) **/
 	// router.GET("/index.html", IndexHandler)
 	articlec := controller.NewArticleController()
-	router.GET("/article/getone/:id", articlec.GetOne)
+	router.GET("/article/getone/:id", articlec.GetOneArticle)
 	router.GET("/article/list", articlec.GetList)
 	router.POST("/", articlec.InsertArticleOne)
-
 	userc := controller.NewUsersController()
 	router.GET("/registry", HandleRegistry)
 	router.POST("/registry", userc.RegistryUsersOne)
+	router.GET("/user/list", userc.GetUserList)
+	router.GET("/user/getone/:userId", userc.GetUsersOne)
 	router.GET("/login", HandleLogin)
 	router.POST("/login", userc.InsertUsersOne)
 	return router

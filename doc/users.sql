@@ -20,6 +20,9 @@ CREATE TABLE `users` (
   `person_id` varchar(18) NOT NULL DEFAULT '' COMMENT '生份证号',
   `emp_id` varchar(100) NOT NULL DEFAULT '' COMMENT '员工号',
   `gender` tinyint UNSIGNED NOT NULL DEFAULT '0' COMMENT '性别：0 女，1 男',
+  `age` int UNSIGNED NOT NULL DEFAULT '0'  COMMENT '年龄',
+  `introduce`  varchar(100) NOT NULL DEFAULT ''  COMMENT '自我介绍',
+  `hobby`  varchar(100) NOT NULL DEFAULT ''  COMMENT '个人爱好',
   `buDomain` varchar(100) NOT NULL DEFAULT '' COMMENT '部门',
   `typeDevice` varchar(100) NOT NULL DEFAULT '' COMMENT '设备类型',
   `createTime` datetime NOT NULL DEFAULT '2020-11-19 00:00:00' COMMENT '创建时间',
@@ -31,5 +34,7 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户';
 
 --
-
+alter table TABLE add column `age`  int UNSIGNED NOT NULL DEFAULT '0'  COMMENT '年龄';
+alter table TABLE add column `introduce`  varchar(100) NOT NULL DEFAULT ''  COMMENT '自我介绍';
+alter table TABLE add column `hobby`  varchar(100) NOT NULL DEFAULT ''  COMMENT '个人爱好';
 INSERT INTO `Users` (`userId`,`name`,`password`,`email`,`phone`) VALUES (0,'baineng','zaq12wsx','nengbai@aliyun.com','18601369917')  

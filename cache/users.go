@@ -22,7 +22,7 @@ func getUsersCacheName(userId uint64) string {
 
 //从cache得到一篇文章
 func GetOneUsersCache(userId uint64) (*model.Users, error) {
-	key := getArticleCacheName(userId)
+	key := getUsersCacheName(userId)
 	val, err := global.RedisDb.Get(key).Result()
 
 	if err == redis.Nil || err != nil {
@@ -39,7 +39,7 @@ func GetOneUsersCache(userId uint64) (*model.Users, error) {
 
 //向cache保存一篇文章
 func SetOneUsersCache(userId uint64, user *model.Users) error {
-	key := getArticleCacheName(userId)
+	key := getUsersCacheName(userId)
 	content, err := json.Marshal(user)
 	if err != nil {
 		fmt.Println(err)
