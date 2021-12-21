@@ -19,13 +19,11 @@ func Router() *gin.Engine {
 	router.Use(Recover)
 
 	// 加载静态页面
-	// router.Static("/static", "./static")
-	// router.LoadHTMLGlob("templates/*")
-	router.LoadHTMLFiles("static/login.html", "static/index.html", "static/registry.html", "static/test.html")
+	router.Static("/static", "./static")
+	router.LoadHTMLGlob("static/templates/*")
+	router.LoadHTMLFiles("static/html/index.html", "static/html/users/login.html", "static/html/index.html", "static/html/users/registry.html", "static/html/users/test.html")
 
-	router.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.html", nil)
-	})
+	router.GET("/", IndexHandler)
 
 	// post
 
@@ -35,18 +33,25 @@ func Router() *gin.Engine {
 		c.String(http.StatusOK, "Hello World")
 		fmt.Printf("c.Errors: %v\n", c.Errors)
 	}) **/
-	// router.GET("/index.html", IndexHandler)
 	articlec := controller.NewArticleController()
 	router.GET("/article/getone/:id", articlec.GetOneArticle)
 	router.GET("/article/list", articlec.GetList)
 	router.POST("/", articlec.InsertArticleOne)
 	userc := controller.NewUsersController()
+	v1 := router.Group("/users")
+	{
+		v1.GET("/", func(c *gin.Context) {
+			c.String(http.StatusOK, "users v1's homepage")
+		})
+		v1.POST("/registry", userc.RegistryUsersOne)
+		v1.GET("/list", userc.GetUserList)
+		v1.GET("/getone/:userId", userc.GetUsersOne)
+		v1.POST("/login", userc.UserLogin)
+
+	}
+
 	router.GET("/registry", HandleRegistry)
-	router.POST("/registry", userc.RegistryUsersOne)
-	router.GET("/user/list", userc.GetUserList)
-	router.GET("/user/getone/:userId", userc.GetUsersOne)
 	router.GET("/login", HandleLogin)
-	router.POST("/login", userc.InsertUsersOne)
 	return router
 }
 
@@ -72,7 +77,7 @@ func Recover(c *gin.Context) {
 
 func IndexHandler(c *gin.Context) {
 	c.HTML(
-		http.StatusOK, "index.tmpl", gin.H{
+		http.StatusOK, "index.html", gin.H{
 			"title": "Microcservices Demo",
 		})
 }

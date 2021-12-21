@@ -55,15 +55,18 @@ func SelectAllArticle(pageOffset int, pageSize int) ([]*model.Article, error) {
 }
 
 //Insert一条记录
-func InsertOneArticle(subject, url string) {
+func InsertOneArticle(subject, url string) (*model.ArticleBase, error) {
 	//fields := []string{subject, url, "0", "0"}
 	articleOne := &model.ArticleBase{
 		Subject: subject,
 		Url:     url,
 	}
 	fmt.Printf("%v,%v", articleOne.Subject, articleOne.Url)
-	result := global.DBLink.Create(&articleOne)
-	if result.Error != nil {
-		fmt.Printf("%v", result.Error)
+	//result := global.DBLink.Create(&articleOne)
+	err := global.DBLink.Create(&articleOne).Error
+	if err != nil {
+		return nil, err
+	} else {
+		return articleOne, nil
 	}
 }

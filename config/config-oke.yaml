@@ -2,7 +2,7 @@ Database:
   DBType: mysql
   UserName: time
   Password: Ora@2021.passwd
-  Host: 132.145.92.220:3306
+  Host: 10.0.0.12:3306
   DBName: microdb
   Charset: utf8
   ParseTime: True
@@ -10,9 +10,9 @@ Database:
   MaxOpenConns: 30
 Server:
   RunMode: debug
-  HttpPort: 8080
+  HttpPort: 8000
   ReadTimeout: 60
   WriteTimeout: 60
 Redis:
-  Addr: 132.145.92.220:6379
-  Password: 
+  Addr: redis-master.redis:6379
+  Password: sugXXkOruT

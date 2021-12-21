@@ -116,7 +116,7 @@ func (a *UsersController) InsertUsersOne(c *gin.Context) {
 	}
 	fmt.Printf("%v,%v,%v,%v,%v,%v,%v", name, email, password, gender, phone, introduce, ages)
 	_, err := service.InsertUsersOne(name, password, email, phone, gender, introduce, ages, hobbys)
-	c.HTML(http.StatusOK, "login.html", gin.H{
+	c.HTML(http.StatusOK, "/users/login.html", gin.H{
 		"name":     name,
 		"password": password,
 		"email":    email,
@@ -159,7 +159,7 @@ func (a *UsersController) RegistryUsersOne(c *gin.Context) {
 	}
 	fmt.Printf("%v,%v,%v,%v,%v,%v,%v,%v", name, email, password, gender, phone, introduce, ages, hobbys)
 	service.InsertUsersOne(name, password, email, phone, gender, introduce, ages, hobbys)
-	c.HTML(http.StatusOK, "test.html", gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"name":      name,
 		"password":  password,
 		"email":     email,
@@ -169,4 +169,27 @@ func (a *UsersController) RegistryUsersOne(c *gin.Context) {
 		"introduce": introduce,
 		"Hobby":     hobbys,
 	})
+}
+
+func (a *UsersController) UserLogin(c *gin.Context) {
+	name := c.PostForm("name")
+	password := c.PostForm("password")
+	fmt.Printf("%v,%v", name, password)
+	if name != "" && password != "" {
+		user, err := service.GetOneUserbyName(name, password)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"errors": err.Error(),
+			})
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"name":     user.Name,
+				"password": user.Password,
+			})
+		}
+
+	} else {
+		c.String(http.StatusOK, "There are empty for username and password,please check... ")
+	}
+
 }

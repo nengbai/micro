@@ -54,3 +54,12 @@ func InsertUsersOne(name, password, email, phone, gender, introduce string, ages
 	return true, nil
 
 }
+
+func GetOneUserbyName(name, password string) (*model.Users, error) {
+	user, err := dao.GetOneUser(name, password)
+	if err != nil {
+		//fmt.Printf("errors:%s", err)
+		return nil, err
+	}
+	return user, err
+}

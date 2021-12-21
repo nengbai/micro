@@ -5,11 +5,12 @@
     <title>login</title>
     <style>
         form{
-            width: 800px;
-            height: 500px;
+            width: 450px;
+            height: 200px;
             border: 1px solid red;
             margin: auto;
             background: url(images/tree.jpg) no-repeat -40px 300px;
+            background-color:gray;
         }
         form h3{
             margin-left: 200px;
@@ -29,7 +30,6 @@
         input,
         textarea
         {
-        
         }
         button{
             margin-left: 200px;
@@ -45,26 +45,17 @@
 <body>
 <div>
 {{/*     方法是post 表单提交 点击 提交之后跳转到下一个index 页面 显示提交数据*/}}
-    <form action="/login" method="post">
-        <p class="a1">
-        用户名:<br>
-        <input type="text" name="name" id="name"> <br>
-        密码: <br>
-        <input type="text" name="password" id="password"> <br>
-        邮箱: <br>
-        <input type="text" name="email" id="email "> <br>
-        手机: <br>
-        <input type="text" name="phone" id="phone"> <br>
-        生份证号: <br>
-        <input type="text" name="person_id" id="person_id"> <br>
-        员工号: <br>
-        <input type="text" name="emp_id" id="emp_id"> <br>
-        部门: <br>
-        <input type="text" name="buDomain" id="buDomain"> <br>
-        设备类型: <br>
-        <input type="text" name="typeDevice" id="typeDevice"> <br>
-        <input type="submit" value="Submit">
+    <form action="/users/login" method="post">
+        <h3>
+            登录
+        </h3>
+        <p class="a1"> 用户名: <input type="text" name="name" id="name"> 
         </p>
+        <p class="a1">  密&#12288;码: <input type="text" name="password" id="password"> 
+        </p>
+        <p class="a1" align="justy">&#12288;&#12288;&#12288;&#12288;&#12288; <input type="submit" value="Submit"> &#12288;
+            <input type="submit" value="Cancel">
+        </p>    
     </form>
  
 </div>

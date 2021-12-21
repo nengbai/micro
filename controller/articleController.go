@@ -56,7 +56,7 @@ func (a *ArticleController) GetList(c *gin.Context) {
 		pageInt = param.Page
 	}
 
-	pageSize := 2
+	pageSize := 22
 	pageOffset := (pageInt - 1) * pageSize
 
 	articles, err := service.GetArticleList(pageOffset, pageSize)
@@ -77,16 +77,20 @@ func (a *ArticleController) InsertArticleOne(c *gin.Context) {
 	//result := result.NewResult(c)
 	name := c.PostForm("Subject")
 	link := c.PostForm("Url")
-	service.InsertArticleOne(name, link)
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"name": name,
-		"link": link,
-	})
-	// if err != nil {
-	// 	result.Error(404, "数据插入错误")
-	// } else {
-	// 	//result.Success(&articleOne)
-	// 	fmt.Printf("success")
-	// }
-	// return
+	article, err := service.InsertArticleOne(name, link)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"errors": err.Error(),
+		})
+	} else {
+		// c.HTML(http.StatusOK, "index.html", gin.H{
+		// 	"name": article.Subject,
+		// 	"url":  article.Url,
+		// })
+		c.JSON(http.StatusOK, gin.H{
+			"status": "success",
+			"name":   article.Subject,
+			"url":    article.Url,
+		})
+	}
 }

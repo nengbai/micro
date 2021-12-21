@@ -46,12 +46,12 @@ func GetArticleList(page int, pageSize int) ([]*model.Article, error) {
 }
 
 //插入一篇文章
-func InsertArticleOne(subject string, url string) {
-	dao.InsertOneArticle(subject, url)
-	// if err != nil {
-	// 	return err
-	// } else {
-	// 	return nil
-	// }
+func InsertArticleOne(subject string, url string) (*model.ArticleBase, error) {
+	article, err := dao.InsertOneArticle(subject, url)
+	if err != nil {
+		//fmt.Printf("errors:%s", err)
+		return nil, err
+	}
+	return article, err
 
 }

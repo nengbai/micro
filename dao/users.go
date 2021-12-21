@@ -76,3 +76,14 @@ func InsertOneUsers(name, password, email, phone, gender, introduce string, ages
 	}
 
 }
+
+func GetOneUser(name, password string) (*model.Users, error) {
+	fields := []string{"name", "password"}
+	userOne := &model.Users{}
+	err := global.DBLink.Select(fields).Where("name=? and password=?", name, password).First(&userOne).Error
+	if err != nil {
+		return nil, err
+	} else {
+		return userOne, nil
+	}
+}
