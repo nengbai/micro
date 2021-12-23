@@ -9,26 +9,29 @@ import (
 )
 
 //得到一篇文章的详情
-func GetOneUser(ID uint64) (*model.Users, error) {
+func GetOneUser(ID uint64) (*model.Users, error, string) {
 	//get from cache
 	user, err := cache.GetOneUsersCache(ID)
 	if err == redis.Nil || err != nil {
 		//get from mysql
 		user, errSel := dao.SelectOneUsers(ID)
 		if errSel != nil {
-			return nil, errSel
+			return nil, errSel, ""
 		} else {
 			//set cache
 			errSet := cache.SetOneUsersCache(ID, user)
 			if errSet != nil {
-				return nil, errSet
+				return nil, errSet, ""
 			} else {
-				return user, errSel
+				source := "mysql"
+				return user, errSel, source
 			}
 		}
 	} else {
-		return user, err
+		source := "Redis"
+		return user, err, source
 	}
+
 }
 
 //得到多篇文章，按分页返回

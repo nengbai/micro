@@ -9,25 +9,27 @@ import (
 )
 
 //得到一篇文章的详情
-func GetOneArticle(articleId uint64) (*model.Article, error) {
+func GetOneArticle(articleId uint64) (*model.Article, error, string) {
 	//get from cache
 	article, err := cache.GetOneArticleCache(articleId)
 	if err == redis.Nil || err != nil {
 		//get from mysql
 		article, errSel := dao.SelectOneArticle(articleId)
 		if errSel != nil {
-			return nil, errSel
+			return nil, errSel, ""
 		} else {
 			//set cache
 			errSet := cache.SetOneArticleCache(articleId, article)
 			if errSet != nil {
-				return nil, errSet
+				return nil, errSet, ""
 			} else {
-				return article, errSel
+				source := "mysql"
+				return article, errSel, source
 			}
 		}
 	} else {
-		return article, err
+		source := "redis"
+		return article, err, source
 	}
 }
 

@@ -28,11 +28,11 @@ func (a *ArticleController) GetOneArticle(c *gin.Context) {
 		return
 	}
 
-	articleOne, err := service.GetOneArticle(param.ID)
+	articleOne, err, source := service.GetOneArticle(param.ID)
 	if err != nil {
 		result.Error(404, "数据查询错误")
 	} else {
-		result.Success(&articleOne)
+		result.Success(&articleOne, source)
 	}
 
 }
@@ -56,7 +56,7 @@ func (a *ArticleController) GetList(c *gin.Context) {
 		pageInt = param.Page
 	}
 
-	pageSize := 22
+	pageSize := 5
 	pageOffset := (pageInt - 1) * pageSize
 
 	articles, err := service.GetArticleList(pageOffset, pageSize)
@@ -67,7 +67,8 @@ func (a *ArticleController) GetList(c *gin.Context) {
 		//sum,_ := dao.SelectcountAll()
 		sum, _ := service.GetArticleSum()
 		pageInfo, _ := page.GetPageInfo(pageInt, pageSize, sum)
-		result.Success(gin.H{"list": &articles, "pageinfo": pageInfo})
+		source := "MySQL"
+		result.Success(gin.H{"list": &articles, "pageinfo": pageInfo}, source)
 	}
 
 }

@@ -32,10 +32,9 @@ func SelectcountAll() (int, error) {
 func SelectAllArticle(pageOffset int, pageSize int) ([]*model.Article, error) {
 	fields := []string{"articleId", "subject", "url"}
 	rows, err := global.DBLink.Select(fields).Table(model.Article{}.TableName()).Where("isPublish=?", 1).Offset(pageOffset).Limit(pageSize).Rows()
-
 	if err != nil {
-		fmt.Println("sql is error:")
-		fmt.Println(err)
+		//fmt.Println("sql is error:")
+		//fmt.Println(err)
 		return nil, err
 	}
 
@@ -45,8 +44,8 @@ func SelectAllArticle(pageOffset int, pageSize int) ([]*model.Article, error) {
 		fmt.Println("rows.next:")
 		r := &model.Article{}
 		if err := rows.Scan(&r.ArticleId, &r.Subject, &r.Url); err != nil {
-			fmt.Println("rows.next:")
-			fmt.Println(err)
+			//fmt.Println("rows.next:")
+			//fmt.Println(err)
 			return nil, err
 		}
 		articles = append(articles, r)

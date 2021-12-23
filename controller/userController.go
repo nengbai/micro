@@ -30,11 +30,11 @@ func (a *UsersController) GetUsersOne(c *gin.Context) {
 		return
 	}
 
-	userOne, err := service.GetOneUser(param.ID)
+	userOne, err, source := service.GetOneUser(param.ID)
 	if err != nil {
 		result.Error(404, "数据查询错误")
 	} else {
-		result.Success(&userOne)
+		result.Success(&userOne, source)
 	}
 }
 
@@ -48,11 +48,12 @@ func (a *ArticleController) GetUsersOne(c *gin.Context) {
 		return
 	}
 
-	userOne, err := service.GetOneUser(param.ID)
+	userOne, err, source := service.GetOneUser(param.ID)
 	if err != nil {
 		result.Error(404, "数据查询错误")
 	} else {
-		result.Success(&userOne)
+
+		result.Success(&userOne, source)
 	}
 }
 
@@ -75,7 +76,7 @@ func (a *UsersController) GetUserList(c *gin.Context) {
 		pageInt = param.Page
 	}
 
-	pageSize := 4
+	pageSize := 5
 	pageOffset := (pageInt - 1) * pageSize
 
 	users, err := service.GetUsersList(pageOffset, pageSize)
@@ -86,7 +87,8 @@ func (a *UsersController) GetUserList(c *gin.Context) {
 		//sum,_ := dao.SelectcountAll()
 		sum, _ := service.GetUsersSum()
 		pageInfo, _ := page.GetPageInfo(pageInt, pageSize, sum)
-		result.Success(gin.H{"list": &users, "pageinfo": pageInfo})
+		source := "MySQL"
+		result.Success(gin.H{"list": &users, "pageinfo": pageInfo}, source)
 	}
 }
 

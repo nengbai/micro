@@ -35,19 +35,20 @@ func SelectListUsers(pageOffset int, pageSize int) ([]*model.Users, error) {
 	rows, err := global.DBLink.Select(fields).Table(userOne.TableName()).Offset(pageOffset).Limit(pageSize).Rows()
 	//rows, err := global.DBLink.Select(fields).Table(userOne.TableName()).Rows()
 	if err != nil {
-		fmt.Println("sql is error:")
-		fmt.Println(err)
+		//fmt.Printf("sql is error:%s", err)
+		//fmt.Println(err)
 		return nil, err
 	}
 
 	defer rows.Close()
 	var users []*model.Users
 	for rows.Next() {
-		fmt.Println("rows.next:")
+		//fmt.Println("rows.next:")
 		r := &model.Users{}
-		if err := rows.Scan(&r.UserId, &r.Name, &r.Password, &r.Introduce, &r.Hobby, &r.Email, &r.Phone, &r.Gender, &r.Age); err != nil {
-			fmt.Println("rows.next:")
-			fmt.Println(err)
+		err := rows.Scan(&r.UserId, &r.Name, &r.Password, &r.Introduce, &r.Hobby, &r.Email, &r.Phone, &r.Gender, &r.Age)
+		if err != nil {
+			//fmt.Println("rows.next:")
+			//fmt.Println(err)
 			return nil, err
 		}
 		users = append(users, r)
