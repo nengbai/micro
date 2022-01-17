@@ -1,0 +1,88 @@
+//404.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <h1>{{.username}}的home页面，登录后才能看</h1>
+</body>
+</html>
+
+-----
+//home.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <h1>{{.username}}的home页面，登录后才能看</h1>
+</body>
+</html>
+
+----
+//index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>index</title>
+</head>
+<body>
+    <h1>index页面不登录也能看！</h1>
+</body>
+</html>
+
+----
+//login.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>登录</title>
+</head>
+<body>
+    <form action="" method="POST" enctype="application/x-www-form-urlencoded">
+        <div>
+            <label>用户名：
+                <input type="text" name="username">
+            </label>
+        </div>
+        <div>
+            <label>密码：
+                <input type="password" name="password">
+            </label>
+        </div>
+        <div>
+            <input type="submit">
+        </div>
+    </form>
+    <p style="color: #00ffcc">{{.err}}</p>
+</body>
+</html>
+
+----
+//vip.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <h1>欢迎尊敬的VIP用户：{{.username}} 光临大脚超市，奥力给！</h1>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>登录</title>
+    <style>
+        form{
+            width: 450px;
+            height: 300px;
+            border: 1px solid red;
+            margin: auto;
+            background: url(images/tree.jpg) no-repeat -40px 300px;
+            background-color:gray;
+        }
+        form h3{
+            margin-left: 200px;
+        }
+        p{
+            margin-left: 200px;
+        }
+        hr{
+            margin-left: 200px;
+        }
+         .a1{
+             margin-left: 40px;
+         }
+         .a2{
+            margin-left: 110px;
+        }
+        input,
+        textarea
+        {
+        }
+        button{
+            margin-left: 200px;
+            background: rgb(81, 187, 125);
+            color: white;
+        }
+        span#as:hover input{
+            width: 300px;
+            height: 40px;
+        }  
+    </style>
+</head>
+<body>
+    <form action="" method="POST" enctype="application/x-www-form-urlencoded">
+        <h3>
+            登录
+        </h3>
+        <div class="a1">
+            <label>用户名：
+                <input type="text" name="username">
+            </label>
+        </div>
+        <div class="a1">
+            <br>
+            <label>密&#12288;码：
+                <input type="password" name="password">
+            </label>
+        </div>
+        <div class="a1">
+            <br>
+            <input type="submit">
+        </div>
+        <div >
+            <br>
+        <p class="a1" style="color: red">{{.err}}</p>
+        </div>
+    </form>
+  
+</body>
+</html>

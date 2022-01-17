@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+            form{
+                width: 1000px;
+                height: 800px;
+                border: 1px solid red;
+                margin: auto;
+                background: url(images/tree.jpg) no-repeat -40px 300px;
+            }
+            form h3{
+                margin-left: 200px;
+            }
+            p{
+                margin-left: 200px;
+            }
+            hr{
+                margin-left: 200px;
+            }
+             .a1{
+                 margin-left: 85px;
+             }
+             .a2{
+                margin-left: 110px;
+            }
+            input,
+            textarea
+            {
+            
+            }
+            button{
+                margin-left: 200px;
+                background: rgb(81, 187, 125);
+                color: white;
+            }
+            span#as:hover input{
+                width: 300px;
+                height: 40px;
+            }            
+    </style> 
+</head> 
+<body>
+        <form action="/users/registry" method="post">
+            <h3>用户注册：</h3>
+            <hr>           
+            <p>用户昵称：<span class="a1" id="as"><input type="text" name="name" required placeholder autofocus></span> <hr></p>
+            <p>注册邮箱：<span class="a1" id="as"><input type="email"  name="email" required placeholder="nengbai@oracle.com"></span><hr></p>
+            <p>密码： <span class="a2" id="as"><input type="password" name="password" required placeholder></span><hr></p>
+            <p>性别：<span class="a2" >男<input type="radio"  checked name="gender" value="1">
+                女 <input type="radio" name="gender" value="0"> </span><hr>
+             </p>
+             <p>年龄：<span class="a2" id="as"><input type="number" name="age" required placeholder></span><hr></p>
+             <p>手机号：<span class="a2" id="as"><input type="number" name="phone" required placeholder></span><hr></p>
+             <p>兴趣爱好：<span class="a1">
+                足球<input type="checkbox" name="hobby[]" value="足球">
+                篮球<input type="checkbox" name="hobby[]" value="篮球">
+                游泳<input type="checkbox" name="hobby[]" value="游泳">
+                唱歌<input type="checkbox" name="hobby[]" value="唱歌">
+                跑步<input type="checkbox" name="hobby[]" value="跑步">
+                瑜伽<input type="checkbox" name="hobby[]" value="瑜伽">
+             </span><hr></p>
+            <p>自我介绍： <span class="a1"><textarea name="introduce" cols="30" rows="10" required placeholder>Please enter your message</textarea></span><hr> </p>
+            <button type=submit>立即注册</button>             
+            <div></div>
+        </form>
+</body>
+ 
+</html>

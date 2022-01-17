@@ -1,0 +1,61 @@
+<!--header.html-->
+
+<!doctype html>
+<html>
+
+  <head>
+    <!--Use the `title` variable to set the title of the page-->
+    <title>{{ .title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+
+    <!--Use bootstrap to make the application look nice-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+   <style>
+      form{
+          width: 800px;
+          height: 300px;
+          border: 1px solid gray;
+          margin: auto;
+          text-align:center;
+          background: url(images/tree.jpg) no-repeat -40px 300px;
+          background-color:gray;
+      }
+      form h3{
+          margin-left: 100px;
+      }
+      p{
+          margin-left: 100px;
+      }
+      hr{
+          margin-left: 100px;
+      }
+       .a1{
+           margin-left: 10px;
+       }
+       .a2{
+          margin-left: 110px;
+      }
+      input,textarea
+      {
+          width：500px；
+          height: 25px;
+          ine-height:500px;
+      }
+      button{
+          margin-left: 500px;
+          background: rgb(81, 187, 125);
+          color: white;
+      }
+      span#as:hover input{
+          width: 500px;
+          height: 40px;
+      }  
+  </style>
+    <h1>
+      {{ .title}}
+  </h1>
+  </head>
+
+  <body class="container">
+    <!--Embed the menu.html template at this location-->

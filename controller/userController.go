@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"micro/gin_session"
 	"micro/pkg/page"
 	"micro/pkg/result"
 	"micro/pkg/validCheck"
@@ -9,6 +10,7 @@ import (
 	"micro/service"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -174,24 +176,88 @@ func (a *UsersController) RegistryUsersOne(c *gin.Context) {
 }
 
 func (a *UsersController) UserLogin(c *gin.Context) {
-	name := c.PostForm("name")
-	password := c.PostForm("password")
-	fmt.Printf("%v,%v", name, password)
-	if name != "" && password != "" {
-		user, err := service.GetOneUserbyName(name, password)
+	path := c.Request.URL.RequestURI()
+	if c.Request.Method == "POST" { //判断请求的方法，先判是否为post
+		//toPath := c.DefaultQuery("next", "/index") //一个路径，用于后面的重定向
+		fmt.Printf("Path---->:%s\n", path)
+		var u UserInfo
+		//绑定，并解析参数
+		err := c.ShouldBind(&u)
 		if err != nil {
-			c.JSON(http.StatusOK, gin.H{
-				"errors": err.Error(),
+			c.HTML(http.StatusOK, "login.html", gin.H{
+				"err": "用户名或密码不能为空",
 			})
+			return
 		} else {
-			c.JSON(http.StatusOK, gin.H{
-				"name":     user.Name,
-				"password": user.Password,
-			})
+			name := strings.Trim(c.PostForm("username"), " ")
+			password := strings.Trim(c.PostForm("password"), " ")
+			fmt.Printf("user:%v,password:%v\n", name, password)
+			if name != "" && password != "" {
+				user, err := service.GetOneUserbyName(name, password)
+				if err != nil {
+					c.HTML(http.StatusOK, "login.html", gin.H{
+						"err": err.Error(),
+					})
+					return
+				}
+				if user.Name == name && user.Password == password {
+					tmpSD, ok := c.Get(gin_session.SessionContextName)
+					fmt.Printf("tmpSD:%v\n", tmpSD)
+					if !ok {
+						panic("session middleware")
+					}
+					sd := tmpSD.(gin_session.SessionData)
+					fmt.Printf("sd:%v\n", sd)
+					// 2. 给session data设置isLogin = true
+					sd.Set("isLogin", true)
+					sd.Set("Username", user.Name)
+					//调用Save，存储到Redis
+					sd.Save()
+					//跳转到index界面
+					//fmt.Printf("toPath------>:%v", toPath)
+
+					value, err := sd.Get("toPath")
+					if err != nil {
+						fmt.Printf("toPath error:%v\n", err)
+					}
+					fmt.Printf("toPath value:%v\n", value)
+					//toPath := "/index"
+					//c.Redirect(http.StatusMovedPermanently, toPath)
+					//c.Redirect(http.StatusTemporaryRedirect, toPath)
+					//c.Redirect(http.StatusPermanentRedirect,toPath)
+					//return
+					redirehtml := RedirecFunc(value)
+					c.HTML(http.StatusOK, redirehtml, gin.H{
+						"username": user.Name,
+						"password": user.Password,
+						"isLogin":  true,
+					})
+
+				}
+			} else {
+				c.HTML(http.StatusOK, "login.html", gin.H{
+					"err": "用户名或密码不能为空",
+				})
+				return
+			}
 		}
 
-	} else {
-		c.String(http.StatusOK, "There are empty for username and password,please check... ")
+	} else { //get
+		c.HTML(http.StatusOK, "login.html", nil)
 	}
 
+}
+func RedirecFunc(toPath interface{}) string {
+	var redirehtml string
+	switch toPath {
+	case "/vip":
+		redirehtml = "vip.html"
+	case "/home":
+		redirehtml = "home.html"
+	case "/users/list":
+		redirehtml = "users-list.html"
+	default:
+		redirehtml = "index.html"
+	}
+	return redirehtml
 }

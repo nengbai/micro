@@ -9,7 +9,6 @@ RUN go mod download
 COPY . .
 COPY ./static /app/static
 COPY ./config /app/config
-COPY ./templates /app/templates
 RUN go build -ldflags="-s -w" -o /app/micro ./micro.go
 
 
@@ -20,5 +19,4 @@ WORKDIR /app
 COPY --from=builder /app/micro /app/micro
 COPY --from=builder /app/static /app/static
 COPY --from=builder /app/config  /app/config
-COPY --from=builder /app/templates /app/templates
 CMD ["./micro", "-fig/config.yaml"]

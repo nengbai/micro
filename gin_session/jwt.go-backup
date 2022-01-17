@@ -1,0 +1,305 @@
+package gin_session
+
+import (
+	"encoding/json"
+	"errors"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
+)
+
+type UserClaims struct {
+	//ID    string `json:"userId`
+	Name  string `json:"name"`
+	Phone string `json:"phone"`
+	jwt.StandardClaims
+}
+
+var (
+	secret = []byte("16849841325189456f4487")
+	//noVerity   = []interface{}{"/users/login", "/"}
+	effectTime = 2 * time.Hour
+)
+
+func GenerateToken(claims *UserClaims) string {
+	claims.ExpiresAt = time.Now().Add(effectTime).Unix()
+	sign, err := jwt.NewWithClaims(jwt.SigningMethodES256, claims).SignedString(secret)
+	if err != nil {
+		panic(err)
+	}
+	return sign
+}
+
+func JwtVerify(c *gin.Context) {
+	// if util.IsContainArr(noVerity, c.Request.RequestURI) {
+	// 	return
+	// }
+	token := c.GetHeader("token")
+	if token == "" {
+		panic("token is not exist!")
+	}
+	c.Set("User", parseToken(token))
+}
+
+func parseToken(tokenString string) *UserClaims {
+	token, err := jwt.ParseWithClaims(tokenString, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return secret, nil
+	})
+	if err != nil {
+		panic(err)
+	}
+	claims, ok := token.Claims.(*UserClaims)
+	if !ok {
+		panic("toke is invalid")
+	}
+	return claims
+}
+
+func Refresh(tokenString string) string {
+	jwt.TimeFunc = func() time.Time {
+		return time.Unix(0, 0)
+	}
+	token, err := jwt.ParseWithClaims(tokenString, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return secret, nil
+	})
+	if err != nil {
+		panic(err)
+	}
+	claims, ok := token.Claims.(*UserClaims)
+	if !ok {
+		panic("token is invalid")
+	}
+	jwt.TimeFunc = time.Now
+	claims.StandardClaims.ExpiresAt = time.Now().Add(2 * time.Hour).Unix()
+	return GenerateToken(claims)
+}
+
+var store = base64Captcha.DefaultMemStore
+
+// @Tags Auth
+// @Summary 用户登录
+// @accept json
+// @Produce  json
+// @Param data body sys_model.RegisterAndLoginStruct true "用户登录接口"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"登陆成功"}"
+// @Router /api/base/login [post]
+func Login(c *gin.Context) {
+	var loginVals sys_model.RegisterAndLoginStruct
+	// 绑定信息
+	if err := c.ShouldBind(&loginVals); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    msg_code.ParamNotCompleteCode,
+			"message": msg_code.ParamNotCompleteMsg,
+		})
+		return
+	}
+
+	if loginVals.RoleID != "0" && loginVals.RoleID != "1" && loginVals.RoleID != "2" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    msg_code.RoleIdErrorCode,
+			"message": msg_code.RoleIdErrorMsg,
+		})
+	}
+
+	// 判断验证码
+	loginVals.Captcha = strings.ToLower(loginVals.Captcha)
+	if !store.Verify(loginVals.CaptchaId, loginVals.Captcha, true) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    msg_code.LoginFailCodeCode,
+			"message": msg_code.LoginFailCodeMsg,
+		})
+		return
+	}
+
+	token, err := loginVals.GetUser()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": msg_code.LoginFailCode,
+			"msg":  msg_code.LoginFailMsg,
+			"data": "",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": msg_code.SuccessCode,
+		"msg":  msg_code.SuccessMsg,
+		"data": gin.H{"token": token},
+	})
+
+}
+
+type PartUserMessage struct {
+	Username    string `json:"username"`
+	UserPicture string `json:"picture"`
+}
+
+// User login structure
+type RegisterAndLoginStruct struct {
+	Username  string `form:"username" binding:"required"`
+	Password  string `form:"password" binding:"required"`
+	RoleID    string `form:"role_id" binding:"required"`
+	Captcha   string `form:"captcha" binding:"required"`
+	CaptchaId string `form:"captchaId" binding:"required"`
+}
+
+type UserMessage struct {
+	Token    string `json:"token"`
+	UserId   int    `json:"userId"`
+	GroupId  int    `json:"group_id"`
+	RoleId   string `json:"role_id"`
+	Username string `json:"username"`
+}
+
+//func (u *RegisterAndLoginStruct) GetUser() (user SysUser, role SysRole, err error) {
+func (u *RegisterAndLoginStruct) GetUser() (token string, err error) {
+	var (
+		userAndPasswordSql string
+		userPassword       string
+		userData           UserMessage
+	)
+	if u.RoleID == "0" {
+		userAndPasswordSql = `select id, password, group_id, picture from stu where username=?`
+		err = db.DB.QueryRow(userAndPasswordSql, u.Username).Scan(&userData.UserId, &userPassword, &userData.GroupId)
+		if err != nil {
+			return
+		}
+	} else if u.RoleID == "1" {
+		userAndPasswordSql = `select password, id, logo from group_all where username=?`
+		err = db.DB.QueryRow(userAndPasswordSql, u.Username).Scan(&userPassword, &userData.GroupId)
+		if err != nil {
+			return
+		}
+	} else if u.RoleID == "2" {
+		userAndPasswordSql = `select id, password, picture from admin where username=?`
+		err = db.DB.QueryRow(userAndPasswordSql, u.Username).Scan(&userData.UserId, &userPassword)
+		if err != nil {
+			return
+		}
+	}
+
+	password := utils.EncodeMD5(u.Password)
+	if password != userPassword {
+		err = errors.New("pass or account is error")
+		return
+	}
+
+	// 查询要缓存的用户数据
+	userData.RoleId = u.RoleID
+	userData.Username = u.Username
+
+	redisKey := utils.EncodeMD5(strconv.Itoa(userData.UserId) + userData.RoleId)
+	if redis.CheckKey(redisKey) {
+		var userMessage UserMessage
+		userData, err := redis.GetJsonByte(redisKey)
+		if err != nil {
+			return "", err
+		}
+		_ = json.Unmarshal(userData, &userMessage)
+		token = userMessage.Token
+		return token, nil
+	}
+
+	token, err = jwt_utils.GenToken(userData.UserId, userData.RoleId)
+	if err != nil {
+		return
+	}
+
+	userData.Token = token
+	err = redis.SetJson(redisKey, userData)
+	if err != nil {
+		return "", err
+	}
+	redis.SetKeyExpire(redisKey, config.TokenExp*60)
+
+	return
+}
+
+var MySecret = []byte(config.SecretKey)
+
+// GenToken 生成JWT
+func GenToken(userId int, RoleId string) (string, error) {
+	// 创建一个我们自己的声明
+	c := MyClaims{
+		userId, // 自定义字段
+		RoleId,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add((config.TokenExp) * time.Minute).Unix(), // 过期时间
+			Issuer:    "my-project",                                           // 签发人
+		},
+	}
+	// 使用指定的签名方法创建签名对象
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
+	// 使用指定的secret签名并获得完整的编码后的字符串token
+	tokenSecret, err := token.SignedString(MySecret)
+	if err != nil {
+		return "", err
+	}
+	return tokenSecret, err
+}
+
+// ParseToken 解析JWT
+func ParseToken(tokenString string) (*MyClaims, []byte, error) {
+	// 解析token
+	token, err := jwt.ParseWithClaims(tokenString, &MyClaims{}, func(token *jwt.Token) (i interface{}, err error) {
+		return MySecret, nil
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+	if claims, ok := token.Claims.(*MyClaims); ok && token.Valid { // 校验token
+		redisKey := utils.EncodeMD5(strconv.Itoa(claims.UserId) + claims.RoleId)
+		userData, err := redis.GetJsonByte(redisKey)
+		if err != nil {
+			return nil, nil, err
+		}
+		return claims, userData, nil
+	}
+	return nil, nil, errors.New("invalid token")
+}
+
+// JWTAuthMiddleware 基于JWT的认证中间件
+func JWTAuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// 客户端携带Token有三种方式 1.放在请求头 2.放在请求体 3.放在URI
+		// 这里假设Token放在Header的Authorization中，并使用Bearer开头
+		// 这里的具体实现方式要依据你的实际业务情况决定
+		authHeader := c.Request.Header.Get("Authorization")
+		if authHeader == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"code": msg_code.TokenIsNullCode,
+				"msg":  msg_code.TokenIsNullMsg,
+			})
+			c.Abort()
+			return
+		}
+		// 按空格分割
+		parts := strings.SplitN(authHeader, " ", 2)
+		if !(len(parts) == 2 && parts[0] == "Bearer") {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"code": msg_code.TokenTypeErrorCode,
+				"msg":  msg_code.TokenTypeErrorMsg,
+			})
+			c.Abort()
+			return
+		}
+		// parts[1]是获取到的tokenString，我们使用之前定义好的解析JWT的函数来解析它
+		_, userData, err := jwt_utils.ParseToken(parts[1])
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"code": msg_code.TokenErrorCode,
+				"msg":  msg_code.TokenErrorMsg,
+			})
+			c.Abort()
+			return
+		}
+		var userMessage sys_model.UserMessage
+		_ = json.Unmarshal(userData, &userMessage)
+		// 将当前请求的信息保存到请求的上下文c上
+		c.Set("userMessage", &userMessage)
+		c.Next() // 后续的处理函数可以用过c.Get("username")来获取当前请求的用户信息
+	}
+}

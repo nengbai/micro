@@ -1,8 +1,10 @@
 package router
 
 import (
+	"fmt"
 	"log"
 	"micro/controller"
+	"micro/gin_session"
 	"micro/pkg/result"
 	"net/http"
 	"runtime/debug"
@@ -21,18 +23,24 @@ func Router() *gin.Engine {
 	// 加载静态页面
 	router.Static("/static", "./static")
 	router.LoadHTMLGlob("static/templates/*")
-	router.LoadHTMLFiles("static/html/index.html", "static/html/users/login.html", "static/html/index.html", "static/html/users/registry.html", "static/html/users/test.html")
+	// router.LoadHTMLFiles("static/html/index.html", "static/html/users/login.html", "static/html/index.html", "static/html/users/registry.html", "static/html/users/test.html")
+	// router.LoadHTMLFiles("static/html/index.html", "static/html/users/registry.html", "static/html/users/test.html")
+	gin_session.InitMgr("redis", "")
+	router.Use(gin_session.SessionMiddleware(gin_session.MgrObj))
+	router.Use(cors())
+	//router.Any("/login", loginHandler)
+	router.GET("/", indexHandler)
+	router.Any("/index", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/")
+	})
+	router.GET("/vip", AuthMiddleware, vipHandler)
+	router.GET("/home", AuthMiddleware, homeHandler)
+	router.NoRoute(func(c *gin.Context) {
+		c.HTML(http.StatusNotFound, "404.html", nil)
+	})
 
-	router.GET("/", IndexHandler)
-
-	// post
-
-	router.POST("/getname", Posthandlefunc)
+	//router.POST("/getname", Posthandlefunc)
 	// 路径映射
-	/** router.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "Hello World")
-		fmt.Printf("c.Errors: %v\n", c.Errors)
-	}) **/
 	articlec := controller.NewArticleController()
 	router.GET("/article/getone/:id", articlec.GetOneArticle)
 	router.GET("/article/list", articlec.GetList)
@@ -44,14 +52,13 @@ func Router() *gin.Engine {
 			c.String(http.StatusOK, "users v1's homepage")
 		})
 		v1.POST("/registry", userc.RegistryUsersOne)
-		v1.GET("/list", userc.GetUserList)
+		v1.GET("/list", AuthMiddleware, userc.GetUserList)
 		v1.GET("/getone/:userId", userc.GetUsersOne)
-		v1.POST("/login", userc.UserLogin)
+		v1.Any("/login", userc.UserLogin)
 
 	}
-
 	router.GET("/registry", HandleRegistry)
-	router.GET("/login", HandleLogin)
+	//router.GET("/login", HandleLogin)
 	return router
 }
 
@@ -73,13 +80,6 @@ func Recover(c *gin.Context) {
 	}()
 	//继续后续接口调用
 	c.Next()
-}
-
-func IndexHandler(c *gin.Context) {
-	c.HTML(
-		http.StatusOK, "index.html", gin.H{
-			"title": "Microcservices Demo",
-		})
 }
 
 func IndexProcess(w http.ResponseWriter, r *http.Request) {
@@ -125,5 +125,103 @@ func response() gin.HandlerFunc {
 			return
 		}
 		c.JSON(http.StatusOK, params)
+	}
+}
+
+//用户信息
+type UserInfo struct {
+	Username string `form:"username"`
+	Password string `form:"password"`
+}
+
+// 编写一个校验用户是否登录的中间件
+// 其实就是从上下文中取到session data,从session data取到isLogin
+func AuthMiddleware(c *gin.Context) {
+	// 1. 从上下文中取到session data
+	// 1. 先从上下文中获取session data
+	toPath := c.Request.URL.Path
+	fmt.Println("Checking Auth")
+	tmpSD, _ := c.Get(gin_session.SessionContextName)
+	sd := tmpSD.(gin_session.SessionData)
+	// 2. 从session data取到isLogin
+	fmt.Printf("sd---->:%v\n", sd)
+	value, err := sd.Get("isLogin")
+	if err != nil {
+		fmt.Printf("error ----->:%v\n", err)
+		// 取不到就是没有登录
+		sd.Set("toPath", toPath)
+		c.Redirect(http.StatusFound, "/users/login")
+		return
+	}
+	fmt.Printf("value----->:%v \n", value)
+	isLogin, ok := value.(bool) //类型断言
+	if !ok {
+		fmt.Println("!ok")
+		sd.Set("toPath", toPath)
+		c.Redirect(http.StatusFound, "/users/login")
+		return
+	}
+	if !isLogin {
+		c.Redirect(http.StatusFound, "/users/login")
+		return
+	}
+	c.Next()
+}
+
+func indexHandler(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", nil)
+}
+
+func homeHandler(c *gin.Context) {
+	tmpSD, ok := c.Get(gin_session.SessionContextName)
+	if !ok {
+		panic("session middleware")
+	}
+	sd := tmpSD.(gin_session.SessionData)
+	username, err := sd.Get("Username")
+	if err != nil {
+		fmt.Printf("error ----->:%v\n", err)
+		// 取不到就是没有登录
+		c.Redirect(http.StatusFound, "/users/login")
+		return
+	}
+
+	c.HTML(http.StatusOK, "home.html", gin.H{
+		"username": username,
+		"isLogin":  true,
+	})
+}
+
+func vipHandler(c *gin.Context) {
+	tmpSD, ok := c.Get(gin_session.SessionContextName)
+	if !ok {
+		panic("session middleware")
+	}
+	sd := tmpSD.(gin_session.SessionData)
+	username, err := sd.Get("Username")
+	if err != nil {
+		fmt.Printf("error ----->:%v\n", err)
+		// 取不到就是没有登录
+		c.Redirect(http.StatusFound, "/users/login")
+		return
+	}
+	c.HTML(http.StatusOK, "vip.html", gin.H{
+		"username": username,
+	})
+}
+
+func cors() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		method := c.Request.Method
+
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Headers", "Content-Type,AccessToken,X-CSRF-Token, Authorization, Token")
+		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+		c.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Content-Type")
+		c.Header("Access-Control-Allow-Credentials", "true")
+		if method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusNoContent)
+		}
+		c.Next()
 	}
 }

@@ -15,4 +15,4 @@ Server:
   WriteTimeout: 60
 Redis:
   Addr: redis-master.redis:6379
-  Password: sugXXkOruT
+  Password: I3gQqFlxxU
