@@ -14,7 +14,7 @@ import (
 
 //NewRedisSessionData  的构造函数,用于构造sessiondata小仓库，小红块
 
-//redis版的sessiondata的数据结构
+// redis版的sessiondata的数据结构
 type RedisSD struct {
 	ID      string
 	Data    map[string]interface{}
@@ -75,7 +75,14 @@ func (r *RedisSD) GetID() string { //为了拿到接口的ID数据
 	return r.ID
 }
 
-//NewRedisMgr  redis版初始化session仓库,构造函数
+// 大仓库
+type RedisMgr struct {
+	Session map[string]SessionData //存储所有的session的一个大切片
+	rwLock  sync.RWMutex
+	client  *redis.Client //redis连接池
+}
+
+// NewRedisMgr  redis版初始化session仓库,构造函数
 func NewRedisMgr() Mgr {
 	//返回一个对象实例
 	return &RedisMgr{
@@ -84,14 +91,7 @@ func NewRedisMgr() Mgr {
 
 }
 
-//大仓库
-type RedisMgr struct {
-	Session map[string]SessionData //存储所有的session的一个大切片
-	rwLock  sync.RWMutex
-	client  *redis.Client //redis连接池
-}
-
-//RedisMgr初始化
+// RedisMgr初始化
 func (r *RedisMgr) Init(addr string, option ...string) { //这里的option...代表不定参数，参数个数不确定
 	//	初始化redis连接池
 	var (
@@ -121,17 +121,18 @@ func (r *RedisMgr) Init(addr string, option ...string) { //这里的option...代
 	}
 }
 
-//加载数据库里的数据
+// 加载数据库里的数据
 func (r *RedisMgr) LoadFromRedis(sessionID string) (err error) {
 	//1.连接redis
 	//2.根据sessioniD拿到数据
 	value, err := r.client.Get(sessionID).Result()
 	if err != nil {
 		//redis中wusessioinid对应的sessiondata
-		fmt.Printf("连接数据库失败")
+		fmt.Println("连接Redis数据库失败")
 		return
 	}
 	//3.反序列化成 r.session
+	// decoder:=json.NewDecoder(value)
 	err = json.Unmarshal([]byte(value), &r.Session)
 	if err != nil {
 		//反序列化失败
@@ -141,7 +142,7 @@ func (r *RedisMgr) LoadFromRedis(sessionID string) (err error) {
 	return
 }
 
-//GetSessionData 根据传进来的SessionID找到对应Session
+// GetSessionData 根据传进来的SessionID找到对应Session
 func (r *RedisMgr) GetSessionData(sessionId string) (sd SessionData, err error) {
 
 	//1.r.sesion已经从redis中拿到数据
@@ -163,7 +164,7 @@ func (r *RedisMgr) GetSessionData(sessionId string) (sd SessionData, err error) 
 	return
 }
 
-//CreatSession 创建一个session记录
+// CreatSession 创建一个session记录
 func (r *RedisMgr) CreatSession() (sd SessionData) {
 	//1. 构造一个sessionID
 	uuidObj := uuid.NewV4()

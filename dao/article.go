@@ -6,7 +6,7 @@ import (
 	"micro/model"
 )
 
-//select一条记录
+// SelectOneArticle select一条记录
 func SelectOneArticle(articleId uint64) (*model.Article, error) {
 	fields := []string{"articleId", "subject", "url"}
 	articleOne := &model.Article{}
@@ -18,7 +18,7 @@ func SelectOneArticle(articleId uint64) (*model.Article, error) {
 	}
 }
 
-//select总数
+// select总数
 func SelectcountAll() (int, error) {
 	var count int
 	err := global.DBLink.Table(model.Article{}.TableName()).Count(&count).Error
@@ -28,7 +28,7 @@ func SelectcountAll() (int, error) {
 	return count, nil
 }
 
-//select全部文章
+// SelectAllArticle 查找全部文章
 func SelectAllArticle(pageOffset int, pageSize int) ([]*model.Article, error) {
 	fields := []string{"articleId", "subject", "url"}
 	//rows, err := global.DBLink.Select(fields).Table(model.Article{}.TableName()).Where("isPublish=?", 1).Offset(pageOffset).Limit(pageSize).Rows()
@@ -54,7 +54,7 @@ func SelectAllArticle(pageOffset int, pageSize int) ([]*model.Article, error) {
 	return articles, nil
 }
 
-//Insert一条记录
+// InsertOneArticle Insert一条记录
 func InsertOneArticle(subject, url string) (*model.ArticleBase, error) {
 	//fields := []string{subject, url, "0", "0"}
 	articleOne := &model.ArticleBase{

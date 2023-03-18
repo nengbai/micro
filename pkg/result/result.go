@@ -10,7 +10,7 @@ type Result struct {
 	Ctx *gin.Context
 }
 
-//返回的结果：
+// 返回的结果：
 type ResultCont struct {
 	Code   int         `json:"code"`   //提示代码
 	Msg    string      `json:"msg"`    //提示信息
@@ -22,7 +22,7 @@ func NewResult(ctx *gin.Context) *Result {
 	return &Result{Ctx: ctx}
 }
 
-//成功
+// 成功
 func (r *Result) Success(data interface{}, source string) {
 	if data == nil {
 		data = gin.H{}
@@ -35,7 +35,7 @@ func (r *Result) Success(data interface{}, source string) {
 	r.Ctx.JSON(http.StatusOK, res)
 }
 
-//出错
+// 出错
 func (r *Result) Error(code int, msg string) {
 	res := ResultCont{}
 	res.Code = code

@@ -1,8 +1,9 @@
+# kubectl create configmap demo-config --from-file=config.yaml -n redis
 Database:
   DBType: mysql
   UserName: time
-  Password: Ora@2021.passwd
-  Host: 10.0.0.12:3306
+  Password: Ora@2021.passwd    # root Bn@Oracle.admin.19
+  Host: mysql:3306
   DBName: microdb
   Charset: utf8
   ParseTime: True

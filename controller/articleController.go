@@ -18,7 +18,7 @@ func NewArticleController() ArticleController {
 	return ArticleController{}
 }
 
-//得到一篇文章的详情
+// 得到一篇文章的详情
 func (a *ArticleController) GetOneArticle(c *gin.Context) {
 	result := result.NewResult(c)
 	param := request.ArticleRequest{ID: validCheck.StrTo(c.Param("id")).MustUInt64()}
@@ -37,7 +37,7 @@ func (a *ArticleController) GetOneArticle(c *gin.Context) {
 
 }
 
-//得到多篇文章，按分页返回
+// 得到多篇文章，按分页返回
 func (a *ArticleController) GetList(c *gin.Context) {
 	result := result.NewResult(c)
 	pageInt := 0
@@ -73,7 +73,7 @@ func (a *ArticleController) GetList(c *gin.Context) {
 
 }
 
-//插入篇文章
+// 插入篇文章
 func (a *ArticleController) InsertArticleOne(c *gin.Context) {
 	//result := result.NewResult(c)
 	name := c.PostForm("Subject")

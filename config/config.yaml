@@ -1,18 +1,19 @@
-Database:
-  DBType: mysql
-  UserName: time
-  Password: Ora@2021.passwd
-  Host: 132.145.92.220:3306
-  DBName: microdb
-  Charset: utf8
-  ParseTime: True
-  MaxIdleConns: 10
-  MaxOpenConns: 30
-Server:
-  RunMode: debug
-  HttpPort: 8080
-  ReadTimeout: 60
-  WriteTimeout: 60
-Redis:
-  Addr: 132.145.92.220:6379
-  Password: 
+# kubectl create configmap demo-config --from-file=config.yaml -n redis
+database:
+  dbtype: mysql
+  username: micro
+  password: MYSQL_PASSWORD
+  host: mysql.redis:3306
+  dbname: microdb
+  charset: utf8
+  parsetime: True
+  maxidleconns: 10
+  maxopenconns: 30
+server:
+  runmode: debug
+  httpport: 8000
+  readtimeout: 60
+  writetimeout: 60
+redis:
+  addr: redis-master.redis:6379
+  password: REDIS_PASSWORD

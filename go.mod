@@ -1,6 +1,6 @@
 module micro
 
-go 1.17
+go 1.18
 
 require (
 	github.com/gin-gonic/gin v1.7.7
@@ -12,7 +12,13 @@ require (
 	github.com/tal-tech/go-zero v1.2.4
 )
 
-require github.com/satori/go.uuid v1.2.0 // indirect
+require (
+	github.com/howeyc/fsnotify v0.9.0 // indirect
+	github.com/mattn/go-colorable v0.1.12 // indirect
+	github.com/pilu/config v0.0.0-20131214182432-3eb99e6c0b9a // indirect
+	github.com/pilu/fresh v0.0.0-20190826141211-0fa698148017 // indirect
+	github.com/satori/go.uuid v1.2.0 // indirect
+)
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -31,7 +37,7 @@ require (
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/loop-xxx/gin-session v0.1.0
 	github.com/magiconair/properties v1.8.5 // indirect
-	github.com/mattn/go-isatty v0.0.12 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/mitchellh/mapstructure v1.4.2 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
@@ -56,7 +62,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.1.0 // indirect
 	go.uber.org/automaxprocs v1.4.0 // indirect
 	golang.org/x/crypto v0.0.0-20210920023735-84f357641f63 // indirect
-	golang.org/x/sys v0.0.0-20211106132015-ebca88c72f68 // indirect
+	golang.org/x/sys v0.0.0-20220422013727-9388b58f7150 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/grpc v1.42.0 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect

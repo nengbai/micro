@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//用户信息
+// 用户信息
 type UserInfo struct {
 	Username string `form:"username"`
 	Password string `form:"password"`
@@ -46,7 +46,7 @@ func AuthMiddleware(c *gin.Context) {
 	c.Next()
 }
 
-//这个是最主要的，因此涉及到表单数据的提取，cookie的设置等。
+// 这个是最主要的，因此涉及到表单数据的提取，cookie的设置等。
 func loginHandler(c *gin.Context) {
 	if c.Request.Method == "POST" { //判断请求的方法，先判是否为post
 		toPath := c.DefaultQuery("next", "/index") //一个路径，用于后面的重定向

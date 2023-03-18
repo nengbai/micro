@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-redis-dp
+  namespace: redis
+spec:
+  selector:
+    matchLabels:
+      app: demo-redis-dp
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: demo-redis-dp
+    spec:
+      containers:
+      - name: demo-redis
+        image: nrt.ocir.io/ocichina001/devops-repos/
+        imagePullPolicy: Always
+        ports:
+        - name: demo-redis
+          containerPort: 8000
+          protocol: TCP
+      imagePullSecrets:
+        - name: ocirsecret-sh
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-redis-svc
+  labels:
+    app: demo-redis-svc
+  namespace: redis
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8000
+    protocol: TCP
+    targetPort: 8000
+  selector:
+    app: demo-redis-dp
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: demo-redis-gateway
+  namespace: redis
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: demo-redis
+  namespace: redis
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - demo-redis-gateway
+  http:
+  - match:
+    - uri:
+        exact: /
+    - uri:
+        prefix: /users/list
+    - uri:
+        exact: /users/login
+    - uri:
+        exact: /registry
+    - uri:
+        prefix: /article/list
+    route:
+    - destination:
+        host: demo-redis-svc
+        port:
+          number: 8000

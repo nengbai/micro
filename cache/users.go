@@ -12,15 +12,15 @@ import (
 	"github.com/go-redis/redis"
 )
 
-//token的过期时长
+// token的过期时长
 const UsersDuration = time.Minute * 5
 
-//cache的名字
+// cache的名字
 func getUsersCacheName(userId uint64) string {
 	return "user_" + strconv.FormatUint(userId, 10)
 }
 
-//从cache得到一篇文章
+// 从cache得到一篇文章
 func GetOneUsersCache(userId uint64) (*model.Users, error) {
 	key := getUsersCacheName(userId)
 	val, err := global.RedisDb.Get(key).Result()
@@ -37,7 +37,7 @@ func GetOneUsersCache(userId uint64) (*model.Users, error) {
 	}
 }
 
-//向cache保存一篇文章
+// 向cache保存一篇文章
 func SetOneUsersCache(userId uint64, user *model.Users) error {
 	key := getUsersCacheName(userId)
 	content, err := json.Marshal(user)

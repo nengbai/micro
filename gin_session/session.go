@@ -11,13 +11,13 @@ const (
 	SessionContextName = "session"    // session data在gin上下文中对应的key
 )
 
-//定义一个全局的Mgr
+// 定义一个全局的Mgr
 var (
 	// MgrObj 全局的Session管理对象（大仓库）
 	MgrObj Mgr
 )
 
-//构造一个Mgr
+// 构造一个Mgr
 func InitMgr(name string, addr string, option ...string) {
 
 	switch name {
@@ -36,7 +36,6 @@ func InitMgr(name string, addr string, option ...string) {
 	//MgrObj.Init(addr, option...) //初始化mgr
 }
 
-//
 type SessionData interface {
 	GetID() string // 返回自己的ID
 	Get(key string) (value interface{}, err error)
@@ -45,7 +44,7 @@ type SessionData interface {
 	Save() // 保存
 }
 
-//不同版本的管理者接口
+// 不同版本的管理者接口
 type Mgr interface {
 	Init(addr string, option ...string)
 	GetSessionData(sessionId string) (sd SessionData, err error)
@@ -65,7 +64,7 @@ type Options struct {
 	HttpOnly bool
 }
 
-//gin框架中间件
+// gin框架中间件
 func SessionMiddleware(mgrObj Mgr) gin.HandlerFunc {
 
 	return func(c *gin.Context) {

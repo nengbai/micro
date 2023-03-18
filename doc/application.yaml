@@ -1,0 +1,21 @@
+# application.yaml
+# https://blog.csdn.net/ohalo/article/details/127058391
+# kubectl create configmap demo-config --from-file=application.yaml
+#          volumeMounts:
+#            - name: config
+#              mountPath: /app/config.yaml
+#              subPath: config.yaml
+#              readOnly: true
+#              
+#      volumes:
+#         - name: config
+#          configMap:
+#            name: demo-config # 指定我们创建的configMap的名字
+#         
+#
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://mysql.default.svc.cluster.local:3306/docker-demo?useSSL=false&useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&failOverReadOnly=false&maxReconnects=10
+    username: root
+    password: 123456

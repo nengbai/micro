@@ -1,0 +1,79 @@
+# You can copy and paste this template into a new `.gitlab-ci.yml` file.
+# You should not add this template to an existing `.gitlab-ci.yml` file by using the `include:` keyword.
+#
+# To contribute improvements to CI/CD templates, please follow the Development guide at:
+# https://docs.gitlab.com/ee/development/cicd/templates.html
+# This specific template is located at:
+# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Go.gitlab-ci.yml
+
+before_script:
+  # 安装 docker，由于需要在容器里面使用宿主的docker命令，这里就需要安装一个docker的可执行文件，然后在启动容器的时候，将宿主的 docker.sock 文件挂载到容器内的同样位置。
+  #- curl -O https://get.docker.com/builds/Linux/x86_64/docker-latest.tgz && tar zxvf docker-latest.tgz && cp docker/docker /usr/local/bin/ && rm -rf docker docker-latest.tgz
+  #- yum install git -y
+  #- wget https://go.dev/dl/go1.19.7.linux-amd64.tar.gz
+  #- sudo tar -C /usr/local/ -zxvf go1.19.7.linux-amd64.tar.gz
+  #- echo "export PATH=/usr/bin:sbin:/usr/local/go/bin" >> ~/.bash_profile 
+  #- source ~/.bash_profile 
+  - export VERSION=`echo ${CI_COMMIT_TAG} | awk -F"_" '{print $1}'`
+  - export ENV=`echo ${ENV}`
+  - export PROJECT=`echo ${CI_PROJECT}`
+  - export CODE_REP=`echo ${CI_CODE_REP}`
+
+after_script:
+  - echo "Job execute completed"
+
+stages:
+  - download
+  - test
+  - gobuild
+  - publishing
+  - pack
+
+variables:
+  GLOBAL_VAR: "A global variable"
+
+code_download:
+  stage: download
+  script:
+    - git clone $(CODE_REP)
+
+format:
+  stage: test
+  script:
+    - cd ${PROJECT}
+    - go fmt $(go list ./... | grep -v /vendor/)
+    - go vet $(go list ./... | grep -v /vendor/)
+    - go test -race $(go list ./... | grep -v /vendor/)
+
+compile:
+  stage: gobuild
+  script:
+    - docker build -t ${CI_REGISTRY}/${CI_REGISTRY_IMAGE}:${VERSION} .
+  tags:
+    - oci
+  only:
+    - tags
+
+publishing:
+  stage: publishing
+  script: echo "Define your deployment script!"
+    - docker login ${CI_REGISTRY} -u ${} -p ${}
+    - docker push ${CI_REGISTRY}/${CI_REGISTRY_IMAGE}:${VERSION}
+  environment: ${ENV}
+
+pack-job:
+  stage: pack
+  script:
+    - echo "pack images file"
+    - mkdir ~/artifacts_dir
+    - docker save -o ${CI_REGISTRY_IMAGE}:${VERSION}.tar.gz ${CI_REGISTRY_IMAGE}:${VERSION}
+  artifacts:
+    name: "Collect Images file"
+    when: on_success
+    expose_as: 'artifact 1'
+    paths: 
+      - ~/artifacts_dir/${CI_REGISTRY}/${CI_REGISTRY_IMAGE}:${VERSION}.tar
+    expire_in: "30 days"
+    reports:
+      junit: ~/artifacts_dir/surefire-reports/test-*.xml
+      #cobertura:

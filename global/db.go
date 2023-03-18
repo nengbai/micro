@@ -9,7 +9,7 @@ var (
 	DBLink *gorm.DB
 )
 
-func SetupDBLink() (error) {
+func SetupDBLink() error {
 	var err error
 	DBLink, err = gorm.Open(DatabaseSetting.DBType,
 		fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=Local",
@@ -19,7 +19,7 @@ func SetupDBLink() (error) {
 			DatabaseSetting.DBName,
 			DatabaseSetting.Charset,
 			DatabaseSetting.ParseTime,
-	))
+		))
 	if err != nil {
 		return err
 	}
@@ -32,4 +32,3 @@ func SetupDBLink() (error) {
 	DBLink.DB().SetMaxOpenConns(DatabaseSetting.MaxOpenConns)
 	return nil
 }
-

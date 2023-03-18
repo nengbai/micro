@@ -18,11 +18,66 @@ spec:
         image: icn.ocir.io/oraclepartnersas/baineng-oke-registry:demo-redis.v5
         imagePullPolicy: Always
         ports:
-        - name: demo-redis
+        - name: demo-port
           containerPort: 8000
           protocol: TCP
+        #command: ["/bin/sh", "-c", "env"]
+        env:
+            - name: DATABASE_PASSWORD  # 传入pod中的变量名
+              valueFrom:
+                secretKeyRef:
+                  name: mysqldbsecret    # secret 中的 name
+                  key: password          # configmap 中的 key
+            - name: REDIS_PASSWORD     # 传入pod中的变量名
+              #这是myredis用户的密码
+              valueFrom:
+                secretKeyRef:
+                  name: myredissecret    # secret 中的 name 
+                  key: password          # configmap 中的 key
+        startupProbe:
+          httpGet:
+            path: /
+            port: demo-port
+          failureThreshold: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: demo-port
+          failureThreshold: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: demo-port
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 500Mi
+          requests:
+            cpu: 500m
+            memory: 200Mi 
+        volumeMounts:
+          - name: config
+            mountPath: /app/config.yaml
+            subPath: config.yaml
+            readOnly: true
       imagePullSecrets:
         - name: ocirsecret
+      volumes:
+        - name: config
+          configMap:
+            name: demo-config # 指定我们创建的configMap的名字
+      initContainers:
+      - name: init-mydb
+        image: busybox:1.28
+        command: ['sh', '-c', "until nslookup mysql.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for mydb; sleep 2; done"]
+      - name: init-redis
+        image: busybox:1.28
+        command: ['sh', '-c', "until nslookup redis-master.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for redis; sleep 2; done"]
+       
 ---
 apiVersion: v1
 kind: Service
@@ -40,12 +95,13 @@ spec:
   selector:
     app: demo-redis-dp
 
+
 ---
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
-    kubernetes.io/ingress.class: "nginx"  
+    kubernetes.io/ingress.class: "nginx"
   labels:
     app.kubernetes.io/instance: demo-redis-dp
   name: demo-redis-ingress
@@ -58,7 +114,9 @@ spec:
     http:
       paths:
         - path: /
+          pathType: Prefix
           backend:
-            serviceName: demo-redis-svc
-            servicePort: 8000
-
+            service:
+                name: demo-redis-svc
+                port:
+                  number: 8000

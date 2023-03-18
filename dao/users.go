@@ -6,7 +6,7 @@ import (
 	"micro/model"
 )
 
-//select一条记录
+// select一条记录
 func SelectOneUsers(Id uint64) (*model.Users, error) {
 	fields := []string{"userId", "name", "password", "introduce", "hobby", "email", "phone", "gender", "age"}
 	userOne := &model.Users{}
@@ -18,7 +18,7 @@ func SelectOneUsers(Id uint64) (*model.Users, error) {
 	}
 }
 
-//select总数
+// select总数
 func SelectUserscountAll() (int, error) {
 	var count int
 	err := global.DBLink.Table(model.Users{}.TableName()).Count(&count).Error
@@ -28,7 +28,7 @@ func SelectUserscountAll() (int, error) {
 	return count, nil
 }
 
-//select所有记录
+// select所有记录
 func SelectListUsers(pageOffset int, pageSize int) ([]*model.Users, error) {
 	fields := []string{"userId", "name", "password", "introduce", "hobby", "email", "phone", "gender", "age"}
 	userOne := &model.Users{}
@@ -56,7 +56,7 @@ func SelectListUsers(pageOffset int, pageSize int) ([]*model.Users, error) {
 	return users, nil
 }
 
-//select一条记录
+// select一条记录
 func InsertOneUsers(name, password, email, phone, gender, introduce string, ages int, hobbys string) {
 	userOne := &model.Users{
 		UserId:    0,

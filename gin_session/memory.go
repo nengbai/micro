@@ -18,7 +18,7 @@ import (
 //	// 过期时间
 //}
 
-//memory的sessiondata
+// memory的sessiondata
 type MemSD struct {
 	ID     string
 	Data   map[string]interface{}
@@ -55,23 +55,23 @@ func (m *MemSD) Del(key string) {
 	delete(m.Data, key)
 }
 
-//Save方法，被动设置的，因为要照顾redis版的接口
+// Save方法，被动设置的，因为要照顾redis版的接口
 func (m *MemSD) Save() {
 }
 
-//GetID 为了拿到接口的ID数据
+// GetID 为了拿到接口的ID数据
 func (m *MemSD) GetID() string {
 	return m.ID
 
 }
 
-//管理全局的session
+// 管理全局的session
 type MemoryMgr struct {
 	Session map[string]SessionData //存储所有的session的一个大切片
 	rwLock  sync.RWMutex           //读写锁，用于读多写少的情况，读锁可以重复的加，写锁互斥
 }
 
-//内存版初始化session仓库
+// 内存版初始化session仓库
 func NewMemory() Mgr {
 	return &MemoryMgr{
 		Session: make(map[string]SessionData, 1024),
@@ -79,14 +79,14 @@ func NewMemory() Mgr {
 	}
 }
 
-//init方法
+// init方法
 func (m *MemoryMgr) Init(addr string, option ...string) {
 	//这里创建Init方法纯属妥协，其实memory版的并不需要初始化，前面NewMemory已经把活干完了
 	//这里只是为了满足接口的定义，因为redis里需要这个方法取去连接数据库
 
 }
 
-//GetSessionData 根据传进来的SessionID找到对应Session
+// GetSessionData 根据传进来的SessionID找到对应Session
 func (m *MemoryMgr) GetSessionData(sessionId string) (sd SessionData, err error) {
 	// 获取读锁
 	m.rwLock.RLock()
@@ -99,7 +99,7 @@ func (m *MemoryMgr) GetSessionData(sessionId string) (sd SessionData, err error)
 	return
 }
 
-//CreatSession 创建一个session记录
+// CreatSession 创建一个session记录
 func (m *MemoryMgr) CreatSession() (sd SessionData) {
 	//1. 构造一个sessionID
 	uuidObj := uuid.NewV4()
@@ -111,7 +111,7 @@ func (m *MemoryMgr) CreatSession() (sd SessionData) {
 	return
 }
 
-//NewRedisSessionData  的构造函数,用于构造sessiondata小仓库，小红块
+// NewRedisSessionData  的构造函数,用于构造sessiondata小仓库，小红块
 func NewMemorySessionData(id string) SessionData {
 	return &MemSD{
 		ID:   id,

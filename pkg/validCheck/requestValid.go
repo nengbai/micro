@@ -30,7 +30,8 @@ func (v ValidErrors) Errors() []string {
 
 	return errs
 }
-//判断变量是否符合要求
+
+// 判断变量是否符合要求
 func BindAndValid(c *gin.Context, v interface{}) (bool, ValidErrors) {
 	var errs ValidErrors
 	err := c.ShouldBind(v)

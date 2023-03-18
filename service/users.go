@@ -8,7 +8,7 @@ import (
 	"github.com/go-redis/redis"
 )
 
-//得到一篇文章的详情
+// 得到一篇文章的详情
 func GetOneUser(ID uint64) (*model.Users, error, string) {
 	//get from cache
 	user, err := cache.GetOneUsersCache(ID)
@@ -34,7 +34,7 @@ func GetOneUser(ID uint64) (*model.Users, error, string) {
 
 }
 
-//得到多篇文章，按分页返回
+// 得到多篇文章，按分页返回
 func GetUsersList(page int, pageSize int) ([]*model.Users, error) {
 	users, err := dao.SelectListUsers(page, pageSize)
 	if err != nil {
@@ -48,7 +48,7 @@ func GetUsersSum() (int, error) {
 	return dao.SelectUserscountAll()
 }
 
-//插入一篇文章
+// 插入一篇文章
 func InsertUsersOne(name, password, email, phone, gender, introduce string, ages int, hobbys string) (status bool, err error) {
 	dao.InsertOneUsers(name, password, email, phone, gender, introduce, ages, hobbys)
 	if err != nil {

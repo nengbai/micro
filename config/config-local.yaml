@@ -1,3 +1,4 @@
+# kubectl create configmap demo-config --from-file=config.yaml -n redis
 Database:
   DBType: mysql
   UserName: time

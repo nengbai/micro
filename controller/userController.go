@@ -21,7 +21,7 @@ func NewUsersController() UsersController {
 	return UsersController{}
 }
 
-//得到一个用户的详情
+// 得到一个用户的详情
 func (a *UsersController) GetUsersOne(c *gin.Context) {
 	result := result.NewResult(c)
 	param := request.UsersRequest{ID: validCheck.StrTo(c.Param("userId")).MustUInt64()}
@@ -40,7 +40,7 @@ func (a *UsersController) GetUsersOne(c *gin.Context) {
 	}
 }
 
-//得到一篇文章的详情
+// 得到一篇文章的详情
 func (a *ArticleController) GetUsersOne(c *gin.Context) {
 	result := result.NewResult(c)
 	param := request.UsersRequest{ID: validCheck.StrTo(c.Param("userId")).MustUInt64()}
@@ -59,7 +59,7 @@ func (a *ArticleController) GetUsersOne(c *gin.Context) {
 	}
 }
 
-//得到多个用户，按分页返回
+// 得到多个用户，按分页返回
 func (a *UsersController) GetUserList(c *gin.Context) {
 	result := result.NewResult(c)
 	pageInt := 0
@@ -94,7 +94,7 @@ func (a *UsersController) GetUserList(c *gin.Context) {
 	}
 }
 
-//插入篇文章
+// 插入篇文章
 func (a *UsersController) InsertUsersOne(c *gin.Context) {
 	//result := result.NewResult(c)
 	name := c.PostForm("name")

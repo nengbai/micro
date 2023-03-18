@@ -10,7 +10,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
-//init
+// init
 func init() {
 	err := global.SetupSetting()
 	if err != nil {
@@ -31,7 +31,7 @@ func init() {
 func main() {
 	//设置运行模式
 	gin.SetMode(global.ServerSetting.RunMode)
-	//gin.SetMode(gin.DebugMode)
+	gin.SetMode(gin.DebugMode)
 	//引入路由
 	r := router.Router()
 	//run
